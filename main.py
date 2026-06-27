@@ -9,8 +9,13 @@ API_KEY = os.getenv("GEMINI_API_KEY")
 # 1. 抓取真实 Open Call（示例：Res Artis）
 # ---------------------------
 def fetch_opportunities():
-    url = "https://resartis.org/open-calls/"
-    r = requests.get(url)
+    return """
+Res Artis open calls for residencies in Europe.
+Artist grants in France with funding support.
+Tokyo art foundation open submissions.
+German cultural council project funding.
+Japan international residency programs with stipend.
+"""
     soup = BeautifulSoup(r.text, "html.parser")
 
     items = []
