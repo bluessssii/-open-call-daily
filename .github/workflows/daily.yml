@@ -2,7 +2,7 @@ name: Daily Open Call
 
 on:
   schedule:
-    - cron: '0 1 * * *'   # 每天运行（UTC时间）
+    - cron: '0 1 * * *'
   workflow_dispatch:
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests beautifulsoup4
+          pip install requests
 
       - name: Run script
         env:
