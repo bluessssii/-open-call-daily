@@ -12,7 +12,11 @@ def generate():
     payload = {
         "contents": [
             {
-                "parts": [{"text": "Return 5 international art open calls with name, country, deadline."}]
+                "parts": [
+                    {
+                        "text": "Return 5 international contemporary art open calls. Format clearly."
+                    }
+                ]
             }
         ]
     }
@@ -43,16 +47,18 @@ def send_email(content):
 
     response = requests.post(url, json=payload, headers=headers)
 
-    # 🧠 关键：必须看到返回值
-    print("EMAIL STATUS:", response.status_code)
-    print("EMAIL RESPONSE:", response.text)
+    # 🧠 关键：打印真实返回
+    print("=== RESEND STATUS ===")
+    print("status:", response.status_code)
+    print("body:", response.text)
 
     return response.text
 
 
 def run():
     content = generate()
-    print("GEMINI OUTPUT:", content)
+    print("=== GEMINI OUTPUT ===")
+    print(content)
 
     send_email(content)
 
