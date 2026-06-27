@@ -14,7 +14,7 @@ def generate_open_calls():
             {
                 "parts": [
                     {
-                        "text": "Give 5 international art open calls with deadline + funding + country."
+                        "text": "Give 5 international art open calls with deadline, funding, country."
                     }
                 ]
             }
@@ -26,7 +26,7 @@ def generate_open_calls():
     print("=== GEMINI STATUS ===")
     print(r.status_code)
 
-    print("=== GEMINI RESPONSE ===")
+    print("=== GEMINI RAW ===")
     print(r.text)
 
     data = r.json()
@@ -57,10 +57,8 @@ def send_email(content):
     print("=== RESEND STATUS ===")
     print(r.status_code)
 
-    print("=== RESEND RESPONSE ===")
+    print("=== RESEND BODY ===")
     print(r.text)
-
-    return r.text
 
 
 def run():
