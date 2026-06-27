@@ -7,26 +7,12 @@ EMAIL_TO = os.getenv("EMAIL_TO")
 
 
 def generate():
-    prompt = """
-Return 5 international contemporary art open calls.
-
-Format:
-Name / Country / Type / Deadline / 1-line description
-
-Focus:
-- funded opportunities
-- residencies
-- awards
-- exhibitions
-"""
-
-    # ✅ 修复点：模型必须是 latest
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={GEMINI_API_KEY}"
 
     payload = {
         "contents": [
             {
-                "parts": [{"text": prompt}]
+                "parts": [{"text": "Return 5 international art open calls with name, country, deadline."}]
             }
         ]
     }
@@ -49,19 +35,26 @@ def send_email(content):
     }
 
     payload = {
-        "from": "OpenCall Bot <onboarding@resend.dev>",
+        "from": "onboarding@resend.dev",
         "to": EMAIL_TO,
         "subject": "Daily Open Call Digest",
         "text": content
     }
 
-    requests.post(url, json=payload, headers=headers)
+    response = requests.post(url, json=payload, headers=headers)
+
+    # 🧠 关键：必须看到返回值
+    print("EMAIL STATUS:", response.status_code)
+    print("EMAIL RESPONSE:", response.text)
+
+    return response.text
 
 
 def run():
     content = generate()
+    print("GEMINI OUTPUT:", content)
+
     send_email(content)
-    print(content)
 
 
 if __name__ == "__main__":
