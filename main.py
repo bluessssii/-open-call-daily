@@ -7,14 +7,10 @@ def run():
     prompt = """
 You are an assistant that finds international art open calls.
 
-Rules:
-- Prefer funding / grants / cash awards
-- Avoid long residency requirements
-- Japan and France allowed if funded
-- Avoid application fees if possible
-
-Return 5 structured opportunities:
+Return 5 real-looking opportunities:
 Name / Country / Type / Deadline / Why relevant
+
+Focus on funding and no long residency.
 """
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
@@ -30,9 +26,16 @@ Name / Country / Type / Deadline / Why relevant
     }
 
     response = requests.post(url, json=payload)
-    result = response.json()
 
-    text = result["candidates"][0]["content"]["parts"][0]["text"]
+    data = response.json()
+
+    # 🧠 关键：防止结构为空直接崩
+    try:
+        text = data["candidates"][0]["content"]["parts"][0]["text"]
+    except Exception:
+        print("Gemini API returned unexpected response:")
+        print(data)
+        raise Exception("Gemini response invalid or blocked")
 
     with open("output.md", "w") as f:
         f.write(text)
