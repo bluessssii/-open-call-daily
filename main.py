@@ -1,76 +1,62 @@
 import os
 import requests
-from bs4 import BeautifulSoup
-import requests
 
-API_KEY = os.getenv("GEMINI_API_KEY")
-
-# ---------------------------
-# 1. 抓取真实 Open Call（示例：Res Artis）
-# ---------------------------
-def fetch_opportunities():
-    return """
-Res Artis open calls for residencies in Europe.
-Artist grants in France with funding support.
-Tokyo art foundation open submissions.
-German cultural council project funding.
-Japan international residency programs with stipend.
-"""
-    soup = BeautifulSoup(r.text, "html.parser")
-
-    items = []
-
-    for h in soup.find_all("h2")[:10]:
-        items.append(h.get_text())
-
-    return "\n".join(items)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+EMAIL_TO = os.getenv("EMAIL_TO")
 
 
-# ---------------------------
-# 2. Gemini筛选
-# ---------------------------
-def analyze(text):
-    prompt = f"""
-You are an assistant filtering real artist opportunities.
+def generate():
+    prompt = """
+You are an assistant that finds 5 high-quality international art open calls.
 
-Only keep:
-- funded residencies
-- grants
-- awards
-- low/no application fee
+Focus:
+- funded opportunities
+- grants / awards
+- low application burden
 
-Text:
-{text}
-
-Return top 5 structured opportunities:
-Name / Type / Country / Why relevant
+Return structured list:
+Name / Country / Type / Deadline / Why relevant
 """
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
 
     payload = {
         "contents": [{"parts": [{"text": prompt}]}]
     }
 
-    res = requests.post(url, json=payload).json()
+    r = requests.post(url, json=payload).json()
 
-    try:
-        return res["candidates"][0]["content"]["parts"][0]["text"]
-    except:
-        return str(res)
+    return r["candidates"][0]["content"]["parts"][0]["text"]
 
 
-# ---------------------------
-# 3. 主流程
-# ---------------------------
+def send_email(content):
+    url = "https://api.resend.com/emails"
+
+    payload = {
+        "from": "OpenCall Bot <onboarding@resend.dev>",
+        "to": EMAIL_TO,
+        "subject": "Daily Open Call Digest",
+        "text": content
+    }
+
+    headers = {
+        "Authorization": f"Bearer {RESEND_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    requests.post(url, json=payload, headers=headers)
+
+
 def run():
-    raw = fetch_opportunities()
-    result = analyze(raw)
+    content = generate()
 
     with open("output.md", "w") as f:
-        f.write(result)
+        f.write(content)
 
-    print(result)
+    send_email(content)
+
+    print(content)
 
 
 run()
