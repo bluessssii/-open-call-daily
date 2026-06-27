@@ -7,14 +7,22 @@ EMAIL_TO = os.getenv("EMAIL_TO")
 
 
 def generate_open_calls():
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key={GEMINI_API_KEY}"
 
     payload = {
         "contents": [
             {
                 "parts": [
                     {
-                        "text": "Give 5 international art open calls, list clearly."
+                        "text": """
+Find 5 international art open calls.
+Include:
+- name
+- deadline
+- country
+- funding info
+Keep it structured and concise.
+"""
                     }
                 ]
             }
@@ -22,10 +30,14 @@ def generate_open_calls():
     }
 
     r = requests.post(url, json=payload)
-    data = r.json()
+
+    print("=== GEMINI STATUS ===")
+    print(r.status_code)
 
     print("=== GEMINI RAW ===")
-    print(data)
+    print(r.text)
+
+    data = r.json()
 
     try:
         return data["candidates"][0]["content"]["parts"][0]["text"]
@@ -48,16 +60,15 @@ def send_email(content):
         "text": content
     }
 
-    response = requests.post(url, json=payload, headers=headers)
+    r = requests.post(url, json=payload, headers=headers)
 
-    # 🧠 关键：你要看的就在这里
     print("=== RESEND STATUS ===")
-    print(response.status_code)
+    print(r.status_code)
 
     print("=== RESEND BODY ===")
-    print(response.text)
+    print(r.text)
 
-    return response.text
+    return r.text
 
 
 def run():
