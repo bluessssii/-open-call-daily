@@ -13,18 +13,21 @@ Return 5 international contemporary art open calls.
 Format:
 Name / Country / Type / Deadline / 1-line description
 
-Focus on:
+Focus:
 - funded opportunities
 - residencies
 - awards
 - exhibitions
 """
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+    # ✅ 修复点：模型必须是 latest
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={GEMINI_API_KEY}"
 
     payload = {
         "contents": [
-            {"parts": [{"text": prompt}]}
+            {
+                "parts": [{"text": prompt}]
+            }
         ]
     }
 
