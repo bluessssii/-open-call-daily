@@ -7,14 +7,18 @@ EMAIL_TO = os.getenv("EMAIL_TO")
 
 
 def generate_open_calls():
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={GEMINI_API_KEY}"
 
     payload = {
         "contents": [
             {
                 "parts": [
                     {
-                        "text": "Give 5 international art open calls with deadline, funding, country."
+                        "text": (
+                            "Give 5 international art open calls. "
+                            "Include: name, country, deadline, funding if any. "
+                            "Keep it concise and structured."
+                        )
                     }
                 ]
             }
@@ -32,7 +36,7 @@ def generate_open_calls():
     data = r.json()
 
     if "candidates" not in data:
-        return "Gemini Error: " + str(data)
+        return f"Gemini Error: {data}"
 
     return data["candidates"][0]["content"]["parts"][0]["text"]
 
