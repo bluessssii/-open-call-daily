@@ -3,39 +3,26 @@ import requests
 
 API_KEY = os.getenv("GEMINI_API_KEY")
 
+print("GEMINI KEY:", API_KEY)
+
 def run():
-    prompt = """
-You are an assistant that finds international art open calls.
+    if not API_KEY:
+        raise Exception("GEMINI_API_KEY not found")
 
-Return 5 real-looking opportunities:
-Name / Country / Type / Deadline / Why relevant
-
-Focus on funding and no long residency.
-"""
+    prompt = "Give 3 art open calls"
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
 
     payload = {
-        "contents": [
-            {
-                "parts": [
-                    {"text": prompt}
-                ]
-            }
-        ]
+        "contents": [{"parts": [{"text": prompt}]}]
     }
 
-    response = requests.post(url, json=payload)
+    r = requests.post(url, json=payload)
+    data = r.json()
 
-    data = response.json()
+    print(data)
 
-    # 🧠 关键：防止结构为空直接崩
-    try:
-        text = data["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception:
-        print("Gemini API returned unexpected response:")
-        print(data)
-        raise Exception("Gemini response invalid or blocked")
+    text = data["candidates"][0]["content"]["parts"][0]["text"]
 
     with open("output.md", "w") as f:
         f.write(text)
