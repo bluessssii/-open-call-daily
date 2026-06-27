@@ -2,43 +2,33 @@ import os
 import requests
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+EMAIL_TO = os.getenv("EMAIL_TO")
 
 
-def generate_open_calls():
+def generate():
     prompt = """
-You are an assistant that finds international contemporary art open calls.
+Return 5 international contemporary art open calls.
 
-Return 5 items only.
-
-Each item must include:
-- Name
-- Country
-- Type (residency / grant / award / exhibition)
-- Deadline (if available)
-- Why it is relevant to experimental / conceptual / research-based art practices
+Format:
+Name / Country / Type / Deadline / 1-line description
 
 Focus on:
 - funded opportunities
-- low application burden
-- conceptual / research / media art friendly
-
-Do NOT include vague or commercial listings.
+- residencies
+- awards
+- exhibitions
 """
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
 
     payload = {
         "contents": [
-            {
-                "parts": [
-                    {"text": prompt}
-                ]
-            }
+            {"parts": [{"text": prompt}]}
         ]
     }
 
     r = requests.post(url, json=payload)
-
     data = r.json()
 
     try:
@@ -47,15 +37,28 @@ Do NOT include vague or commercial listings.
         return str(data)
 
 
-def save_output(text):
-    with open("output.md", "w") as f:
-        f.write(text)
+def send_email(content):
+    url = "https://api.resend.com/emails"
+
+    headers = {
+        "Authorization": f"Bearer {RESEND_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "from": "OpenCall Bot <onboarding@resend.dev>",
+        "to": EMAIL_TO,
+        "subject": "Daily Open Call Digest",
+        "text": content
+    }
+
+    requests.post(url, json=payload, headers=headers)
 
 
 def run():
-    result = generate_open_calls()
-    save_output(result)
-    print(result)
+    content = generate()
+    send_email(content)
+    print(content)
 
 
 if __name__ == "__main__":
