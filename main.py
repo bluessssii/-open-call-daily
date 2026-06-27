@@ -14,15 +14,7 @@ def generate_open_calls():
             {
                 "parts": [
                     {
-                        "text": """
-Find 5 international art open calls.
-Include:
-- name
-- deadline
-- country
-- funding info
-Keep it structured and concise.
-"""
+                        "text": "Give 5 international art open calls with deadline + funding + country."
                     }
                 ]
             }
@@ -34,15 +26,15 @@ Keep it structured and concise.
     print("=== GEMINI STATUS ===")
     print(r.status_code)
 
-    print("=== GEMINI RAW ===")
+    print("=== GEMINI RESPONSE ===")
     print(r.text)
 
     data = r.json()
 
-    try:
-        return data["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception:
-        return str(data)
+    if "candidates" not in data:
+        return "Gemini Error: " + str(data)
+
+    return data["candidates"][0]["content"]["parts"][0]["text"]
 
 
 def send_email(content):
@@ -65,7 +57,7 @@ def send_email(content):
     print("=== RESEND STATUS ===")
     print(r.status_code)
 
-    print("=== RESEND BODY ===")
+    print("=== RESEND RESPONSE ===")
     print(r.text)
 
     return r.text
