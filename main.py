@@ -2,61 +2,61 @@ import os
 import requests
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-RESEND_API_KEY = os.getenv("RESEND_API_KEY")
-EMAIL_TO = os.getenv("EMAIL_TO")
 
 
-def generate():
+def generate_open_calls():
     prompt = """
-You are an assistant that finds 5 high-quality international art open calls.
+You are an assistant that finds international contemporary art open calls.
 
-Focus:
+Return 5 items only.
+
+Each item must include:
+- Name
+- Country
+- Type (residency / grant / award / exhibition)
+- Deadline (if available)
+- Why it is relevant to experimental / conceptual / research-based art practices
+
+Focus on:
 - funded opportunities
-- grants / awards
 - low application burden
+- conceptual / research / media art friendly
 
-Return structured list:
-Name / Country / Type / Deadline / Why relevant
+Do NOT include vague or commercial listings.
 """
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
 
     payload = {
-        "contents": [{"parts": [{"text": prompt}]}]
+        "contents": [
+            {
+                "parts": [
+                    {"text": prompt}
+                ]
+            }
+        ]
     }
 
-    r = requests.post(url, json=payload).json()
+    r = requests.post(url, json=payload)
 
-    return r["candidates"][0]["content"]["parts"][0]["text"]
+    data = r.json()
+
+    try:
+        return data["candidates"][0]["content"]["parts"][0]["text"]
+    except Exception:
+        return str(data)
 
 
-def send_email(content):
-    url = "https://api.resend.com/emails"
-
-    payload = {
-        "from": "OpenCall Bot <onboarding@resend.dev>",
-        "to": EMAIL_TO,
-        "subject": "Daily Open Call Digest",
-        "text": content
-    }
-
-    headers = {
-        "Authorization": f"Bearer {RESEND_API_KEY}",
-        "Content-Type": "application/json"
-    }
-
-    requests.post(url, json=payload, headers=headers)
+def save_output(text):
+    with open("output.md", "w") as f:
+        f.write(text)
 
 
 def run():
-    content = generate()
-
-    with open("output.md", "w") as f:
-        f.write(content)
-
-    send_email(content)
-
-    print(content)
+    result = generate_open_calls()
+    save_output(result)
+    print(result)
 
 
-run()
+if __name__ == "__main__":
+    run()
